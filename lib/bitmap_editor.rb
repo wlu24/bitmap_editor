@@ -1,5 +1,8 @@
 class BitmapEditor
   
+  @@max_col = 250
+  @@max_row = 250
+  
   attr_reader :image
   attr_reader :current_max_col
   attr_reader :current_max_row
@@ -61,6 +64,27 @@ class BitmapEditor
   end
   
   
+  
+  
+  ############## class methods ################
+  
+  
+  def self.integer?(string)
+    return !/\A[-+]?\d+\z/.match(string).nil?
+  end
+  
+  def self.valid_color?(string)
+    return ( (string.length == 1) and (!/\A[A-Z]\z/.match(string).nil?)  )
+  end
+  
+  
+  def self.max_col
+    @@max_col
+  end
+  
+  def self.max_row
+    @@max_row
+  end
   
   
 end
