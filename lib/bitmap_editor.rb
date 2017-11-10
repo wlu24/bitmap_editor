@@ -135,6 +135,15 @@ class BitmapEditor
   end
   
   def process_point_command(col, row, color)
+    if @image.nil?
+      puts "there is no image"
+    elsif 0 < col and col <= @current_max_col and 0 < row and row <= @current_max_row
+      @image[col - 1][row - 1] = color
+    else
+      err_msg = "command failed: L #{col} #{row} #{color}"
+      err_msg += "     (input out of bound; max col is #{@current_max_col}, max row is #{@current_max_row})"
+      puts err_msg
+    end
   end
   
   def process_vertical_line_command(col, row_start, row_end, color)
