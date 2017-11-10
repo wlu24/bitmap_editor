@@ -37,16 +37,18 @@ class BitmapEditor
       if command_array.length != 3
         puts "wrong number of arguments: #{command}"
       elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2])
-        #
+        col_size = command_array[1].to_i
+        row_size = command_array[2].to_i
+        process_create_command(col_size, row_size)
       else
         puts "wrong type of arguments: #{command}"
       end
     when 'C'
       # valid clear command: "C"
-      if command_array.length != 1
-        puts "wrong number of arguments: #{command}"
+      if command_array.length == 1
+        process_clear_command()
       else
-        puts "wrong type of arguments: #{command}"
+        puts "wrong number of arguments: #{command}"
       end
     when 'L'
       # valid point command: "L X Y C"
@@ -54,7 +56,10 @@ class BitmapEditor
       if command_array.length != 4
         puts "wrong number of arguments: #{command}"
       elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.valid_color?(command_array[3])
-        #
+        col = command_array[1].to_i
+        row = command_array[2].to_i
+        color = command_array[3]
+        process_point_command(col, row, color)
       else
         puts "wrong type of arguments: #{command}"
       end
@@ -65,7 +70,11 @@ class BitmapEditor
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
       elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
-        #
+        col = command_array[1].to_i
+        row_start = command_array[2].to_i
+        row_end = command_array[3].to_i
+        color = command_array[4]
+        process_vertical_line_command(col, row_start, row_end, color)
       else
         puts "wrong type of arguments: #{command}"
       end
@@ -76,13 +85,19 @@ class BitmapEditor
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
       elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
-        #
+        col_start = command_array[1].to_i
+        col_end = command_array[2].to_i
+        row = command_array[3].to_i
+        color = command_array[4]
+        process_horizontal_line_command(col_start, col_end, row, color)
       else
         puts "wrong type of arguments: #{command}"
       end
     when 'S'
       # valid show command: "S"
-      if command_array.length != 1
+      if command_array.length == 1
+        process_show_command()
+      else
         puts "wrong number of arguments: #{command}"
       end
       
@@ -93,6 +108,27 @@ class BitmapEditor
   
   end
   
+  
+  ############# command processing ####################
+  
+  
+  def process_create_command(column_size, row_size)
+  end
+  
+  def process_clear_command()
+  end
+  
+  def process_point_command(column_number, row_number, color)
+  end
+  
+  def process_vertical_line_command(column_number, row_number_start, row_number_end, color)
+  end
+  
+  def process_horizontal_line_command(column_number_start, column_number_end, row_number, color)
+  end
+  
+  def process_show_command()
+  end
   
   
   
