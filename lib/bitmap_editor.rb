@@ -31,27 +31,57 @@ class BitmapEditor
     
     
     case command_array[0]
-    when 'I'
+    when 'I'  
+      # valid create command: "I M N"
+      # M is an integer specifying column size, N is an integer specifying row size
       if command_array.length != 3
         puts "wrong number of arguments: #{command}"
+      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2])
+        #
+      else
+        puts "wrong type of arguments: #{command}"
       end
     when 'C'
+      # valid clear command: "C"
       if command_array.length != 1
         puts "wrong number of arguments: #{command}"
+      else
+        puts "wrong type of arguments: #{command}"
       end
     when 'L'
+      # valid point command: "L X Y C"
+      # X is an integer specifying column number, Y is an integer specifying row number, C is a capital letter specifying color
       if command_array.length != 4
         puts "wrong number of arguments: #{command}"
+      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.valid_color?(command_array[3])
+        #
+      else
+        puts "wrong type of arguments: #{command}"
       end
     when 'V'
+      # valid vertical line command: "V X Y1 Y2 C"
+      # X is an integer specifying column number, Y1 is an integer specifying row start number
+      # Y2 is an integer specifying row end number, C is a capital letter specifying color
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
+      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
+        #
+      else
+        puts "wrong type of arguments: #{command}"
       end
     when 'H'
+      # valid horizontal line command: "H X1 X2 Y C"
+      # X1 is an integer specifying column start number, X2 is an integer specifying column end number
+      # Y is an integer specifying row number, C is a capital letter specifying color
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
+      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
+        #
+      else
+        puts "wrong type of arguments: #{command}"
       end
     when 'S'
+      # valid show command: "S"
       if command_array.length != 1
         puts "wrong number of arguments: #{command}"
       end
