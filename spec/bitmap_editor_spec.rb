@@ -27,7 +27,7 @@ RSpec.describe 'BitmapEditor' do
       
       unsupported_commands.each do |c|
         it 'says "unrecognised command :("' do
-          expect { editor.parse_command(c) }.to output("unrecognised command :( : #{c}").to_stdout
+          expect { editor.parse_command(c) }.to output("unrecognised command :( : #{c}\n").to_stdout
         end
       end
       
@@ -36,7 +36,7 @@ RSpec.describe 'BitmapEditor' do
     context 'when wrong number of arguments' do
       ['I', 'I 10 10 10', 'C 10', 'L 10 10', 'V 10 10 10', 'H 10 10 10', 'S 10'].each do |c|
         it 'says "wrong number of inputs"' do
-          expect { "wrong number of arguments: #{c}" }.to output("wrong number of arguments: #{c}").to_stdout
+          expect { editor.parse_command(c) }.to output("wrong number of arguments: #{c}\n").to_stdout
         end
       end
     end
@@ -50,7 +50,7 @@ RSpec.describe 'BitmapEditor' do
       
       wrong_types_commands.each do |c|
         it 'says "wrong type of inputs"' do
-          expect { "wrong number of arguments: #{c}" }.to output("wrong type of arguments: #{c}").to_stdout
+          expect { editor.parse_command(c) }.to output("wrong type of arguments: #{c}\n").to_stdout
         end
       end
       

@@ -24,18 +24,38 @@ class BitmapEditor
   def parse_command(command)
     
     command = command.chomp
+    command_array = command.split(' ')
     
     
-    case command
+    case command_array[0]
     when 'I'
+      if command_array.length != 3
+        puts "wrong number of arguments: #{command}"
+      end
     when 'C'
+      if command_array.length != 1
+        puts "wrong number of arguments: #{command}"
+      end
     when 'L'
+      if command_array.length != 4
+        puts "wrong number of arguments: #{command}"
+      end
     when 'V'
+      if command_array.length != 5
+        puts "wrong number of arguments: #{command}"
+      end
     when 'H'
+      if command_array.length != 5
+        puts "wrong number of arguments: #{command}"
+      end
     when 'S'
-        puts "There is no image"
+      if command_array.length != 1
+        puts "wrong number of arguments: #{command}"
+      end
+      
+      #puts "There is no image"
     else
-        puts 'unrecognised command :('
+      puts "unrecognised command :( : #{command}"
     end
   
   end
