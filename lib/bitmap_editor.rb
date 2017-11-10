@@ -14,15 +14,33 @@ class BitmapEditor
 
   def run(file)
     return puts "please provide correct file" if file.nil? || !File.exists?(file)
-
-    File.open(file).each do |line|
-      line = line.chomp
-      case line
-      when 'S'
-          puts "There is no image"
-      else
-          puts 'unrecognised command :('
-      end
-    end
+    File.open(file).each { |line| parse_command(line) }
+    
   end
+  
+  
+  
+  
+  def parse_command(command)
+    
+    command = command.chomp
+    
+    
+    case command
+    when 'I'
+    when 'C'
+    when 'L'
+    when 'V'
+    when 'H'
+    when 'S'
+        puts "There is no image"
+    else
+        puts 'unrecognised command :('
+    end
+  
+  end
+  
+  
+  
+  
 end
