@@ -94,7 +94,62 @@ RSpec.describe 'BitmapEditor' do
               end
           end
       end
-  end  
+  end
+  
+  
+  def is_all_white_pixels?(editor)
+    # check if every pixel is set to white (O)
+    is_all_white_pixels = true
+    @editor.image.each do |row|
+        break if !is_all_white_pixels
+        
+        row.each do |pixel|
+            if pixel != "O"
+                is_all_white_pixels = false
+                break
+            end
+        end
+    end
+    
+    return is_all_white_pixels
+  end
+  
+  
+  describe '#process_create_command' do
+    context "when arguments are within bounds" do
+        before(:each)  { @editor = BitmapEditor.new }
+        in_bounds_commands = [[1,1],[10,20],[50,50],[250,250], [250,1], [1,250]]
+        in_bounds_commands.each do |col,row|
+            it "creates an image of size where column = #{col} and row = #{row} with all pixels colored white (O)" do
+                @editor.process_create_command(col,row)
+                
+                expect(@editor.current_max_col).to eq(col)
+                expect(@editor.current_max_row).to eq(row)
+                
+                expect(@editor.image.length).to eq(row)
+                expect(@editor.image[0].length).to eq(col)
+                
+                expect(is_all_white_pixels?(@editor)).to be true
+                
+            end
+        end
+    end
+    
+    context "when arguments are out of bounds" do
+        before(:each)  { @editor = BitmapEditor.new }
+        out_of_bounds_commands = [[0,0],[251,251], [251,1], [1,251], [0,250], [250,0]]
+        out_of_bounds_commands.each do |col,row|
+            it "does not create an image and say 'create image failed: input(s) out of bound'" do
+                err_msg = "create image failed: I #{col} #{row}" 
+                err_msg += "     (inputs out of bound; column size must be between 1 and #{BitmapEditor.max_col},"
+                err_msg += " row size must be between 1 and #{BitmapEditor.max_row})\n"
+                expect {@editor.process_create_command(col,row) }.to output(err_msg).to_stdout
+            end
+        end
+    end
+  end
+    
+  
 
   
 end

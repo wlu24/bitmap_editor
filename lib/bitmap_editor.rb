@@ -112,19 +112,35 @@ class BitmapEditor
   ############# command processing ####################
   
   
-  def process_create_command(column_size, row_size)
+  def process_create_command(col_size, row_size)
+    if (0 < col_size and col_size <= @@max_col ) and (0 < row_size and row_size <= @@max_row )
+      # if arguments are in bounds
+      @current_max_col = col_size
+      @current_max_row = row_size
+      
+      @image = []
+      row_size.times { @image.push( Array.new(col_size, "O")) }
+      
+    else
+      # if arguments are out of bounds
+      err_msg = "create image failed: I #{col_size} #{row_size}" 
+      err_msg += "     (inputs out of bound; column size must be between 1 and #{@@max_col},"
+      err_msg += " row size must be between 1 and #{@@max_row})"
+      puts err_msg
+      
+    end
   end
   
   def process_clear_command()
   end
   
-  def process_point_command(column_number, row_number, color)
+  def process_point_command(col, row, color)
   end
   
-  def process_vertical_line_command(column_number, row_number_start, row_number_end, color)
+  def process_vertical_line_command(col, row_start, row_end, color)
   end
   
-  def process_horizontal_line_command(column_number_start, column_number_end, row_number, color)
+  def process_horizontal_line_command(col_start, col_end, row_number, color)
   end
   
   def process_show_command()
