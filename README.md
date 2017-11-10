@@ -70,7 +70,3 @@ OWOOO
 
 
 OWOOO
-
-
-
-When implementing this program focus on quality and best practices. DO NOT RUSH! It's not a speed test. Make sure the program handles odd input gracefully.
