@@ -185,6 +185,122 @@ RSpec.describe 'BitmapEditor' do
     
   end
   
+  
+  describe '#process_vertical_line_command' do
+    context "when image not yet created" do
+      it 'says "there is no image"' do
+        @editor = BitmapEditor.new
+        expect {@editor.process_vertical_line_command(1,1,2,"O") }.to output("there is no image\n").to_stdout
+      end
+    end
+    
+    before(:each) do
+      @editor = BitmapEditor.new
+      @editor.process_create_command(8,8)
+    end
+    
+    context "when column input are out of bounds" do
+      it 'says "command failed"' do
+        expect {@editor.process_vertical_line_command(0,1,2,"A") }.to output("command failed: V 0 1 2 A     (column input out of bounds)\n").to_stdout
+        expect {@editor.process_vertical_line_command(9,1,2,"O") }.to output("command failed: V 9 1 2 O     (column input out of bounds)\n").to_stdout
+      end
+    end
+    
+    context "when row inputs are out of bounds" do
+      [[1,0,1,'A'],[1,1,9,'A'],[1,0,9,'A']].each do |col, row_start, row_end, color|
+        it 'says "command failed"' do
+          err_msg = "command failed: V #{col} #{row_start} #{row_end} #{color}     (row input out of bounds)\n"
+          expect {@editor.process_vertical_line_command(col,row_start,row_end, color) }.to output(err_msg).to_stdout
+        end
+      end
+    end
+    
+    context "when inputs are valid" do
+      it 'set color correctly with input 1,1,5,A' do
+        @editor.process_vertical_line_command(1, 1, 5,'A')
+        
+        # set_correctly = true
+        # 0.upto(4) {|i| set_correctly &&= (@editor.image[0][i] == 'A' )}
+        # expect(set_correctly).to be true
+        expect(@editor.image[0][0]).to eq('A')
+        expect(@editor.image[0][1]).to eq('A')
+        expect(@editor.image[0][2]).to eq('A')
+        expect(@editor.image[0][3]).to eq('A')
+        expect(@editor.image[0][4]).to eq('A')
+      end
+      
+      it 'set color correctly with input 8,8,6,B' do
+        @editor.process_vertical_line_command(8,8,6,'B')
+        set_correctly = true
+        5.upto(7) {|i| set_correctly &&= (@editor.image[7][i] == 'B') }
+        expect(set_correctly).to be true
+      end
+      
+      it 'set color correctly with input 3,3,3,C' do
+        @editor.process_vertical_line_command(3,3,3,'C')
+        expect(@editor.image[2][2]).to eq('C')
+        
+      end
+      
+      
+      
+      
+    end
+  end
+  
+  describe '#process_horizontal_line_command' do
+    context "when image not yet created" do
+      it 'says "there is no image"' do
+        @editor = BitmapEditor.new
+        expect {@editor.process_horizontal_line_command(1,2,1,"O") }.to output("there is no image\n").to_stdout
+      end
+    end
+    
+    before(:each) do
+      @editor = BitmapEditor.new
+      @editor.process_create_command(8,8)
+    end
+    
+    context "when column inputs are out of bounds" do
+      [[0,1,1,'A'],[1,9,1,'A'],[0,9,1,'A']].each do |col_start, col_end, row, color|
+        it 'says "command failed"' do
+          err_msg = "command failed: H #{col_start} #{col_end} #{row} #{color}     (column input out of bounds)\n"
+          expect {@editor.process_horizontal_line_command(col_start,col_end,row, color) }.to output(err_msg).to_stdout
+        end
+      end
+    end
+    
+    context "when row input is out of bounds" do
+      it 'says "command fail"' do
+        expect {@editor.process_horizontal_line_command(1,2,0,"A") }.to output("command failed: H 1 2 0 A     (row input out of bounds)\n").to_stdout
+        expect {@editor.process_horizontal_line_command(1,2,9,"O") }.to output("command failed: H 1 2 9 O     (row input out of bounds)\n").to_stdout
+      end
+    end
+    
+    context "when inputs are valid" do
+      it 'set color correctly with input 1,5,1,A' do
+        @editor.process_horizontal_line_command(1,5,1,'A')
+        
+        set_correctly = true
+        0.upto(4) {|i| set_correctly &&= (@editor.image[i][0] == 'A' )}
+        expect(set_correctly).to be true
+      end
+      
+      it 'set color correctly with input 8,6,8,B' do
+        @editor.process_horizontal_line_command(8,6,8,'B')
+        
+        set_correctly = true
+        5.upto(7) {|i| set_correctly &&= (@editor.image[i][7] == 'B' )}
+        expect(set_correctly).to be true
+      end
+      
+      it 'set color correctly with input 3,3,3,C' do
+        @editor.process_horizontal_line_command(3,3,3,'C')
+        expect(@editor.image[2][2]).to eq('C')
+      end
+    end
+  end
+  
     
   
 

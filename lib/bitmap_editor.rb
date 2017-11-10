@@ -114,7 +114,7 @@ class BitmapEditor
   
   def process_create_command(col_size, row_size)
     if (0 < col_size and col_size <= @@max_col ) and (0 < row_size and row_size <= @@max_row )
-      # if arguments are in bounds
+      # if arguments are in bounds, create a new image of size col_size X row_size
       @current_max_col = col_size
       @current_max_row = row_size
       
@@ -122,7 +122,7 @@ class BitmapEditor
       row_size.times { @image.push( Array.new(col_size, "O")) }
       
     else
-      # if arguments are out of bounds
+      # if arguments are out of bounds, print error message
       err_msg = "create image failed: I #{col_size} #{row_size}" 
       err_msg += "     (inputs out of bound; column size must be between 1 and #{@@max_col},"
       err_msg += " row size must be between 1 and #{@@max_row})"
@@ -138,8 +138,10 @@ class BitmapEditor
     if @image.nil?
       puts "there is no image"
     elsif 0 < col and col <= @current_max_col and 0 < row and row <= @current_max_row
+      # if inputs are valid, set pixel to color
       @image[col - 1][row - 1] = color
     else
+      # if inputs are out of bound, print error message
       err_msg = "command failed: L #{col} #{row} #{color}"
       err_msg += "     (input out of bound; max col is #{@current_max_col}, max row is #{@current_max_row})"
       puts err_msg
@@ -147,9 +149,49 @@ class BitmapEditor
   end
   
   def process_vertical_line_command(col, row_start, row_end, color)
+    # vertical_line range can start with either row_start or row_end
+    if @image.nil?
+      puts "there is no image"
+    elsif col < 1 or col > @current_max_col
+      # if col is out of bound, print error message
+      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (column input out of bounds)"
+    elsif 0 < row_start and row_start <= @current_max_row and 0 < row_end and row_end <= @current_max_row
+      # if the inputs are valid, set the pixels with the color accordingly
+    
+      if row_start < row_end
+        row_start.upto(row_end) {|i| @image[col-1][i-1] = color}
+      else
+        # if row_start and row_end are in reverse order, starts with row_end
+        row_end.upto(row_start) {|i| @image[col-1][i-1] = color}
+      end
+
+    else
+      # if row input is out of bound, print error message
+      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (row input out of bounds)"
+    end
   end
   
-  def process_horizontal_line_command(col_start, col_end, row_number, color)
+  def process_horizontal_line_command(col_start, col_end, row, color)
+    if @image.nil?
+      puts "there is no image"
+    elsif row < 1 or row > @current_max_row
+      # if row is out of bound, print error message
+      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (row input out of bounds)"
+    elsif 0 < col_start and col_start <= @current_max_col and 0 < col_end and col_end <= @current_max_col
+      # if the inputs are valid, set the pixels with the color accordingly
+      
+      if col_start < col_end
+        col_start.upto(col_end) {|i| @image[i-1][row-1] = color }
+      else
+        # if col_start and col_end are in reverse order, start with col_end
+        col_end.upto(col_start) {|i| @image[i-1][row-1] = color }
+      end
+      
+      
+    else
+      # if column is out of bound, print error message
+      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (column input out of bounds)"
+    end
   end
   
   def process_show_command()
