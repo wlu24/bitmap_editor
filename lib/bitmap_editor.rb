@@ -100,8 +100,6 @@ class BitmapEditor
       else
         puts "wrong number of arguments: #{command}"
       end
-      
-      #puts "There is no image"
     else
       puts "unrecognised command :( : #{command}"
     end
@@ -132,6 +130,14 @@ class BitmapEditor
   end
   
   def process_clear_command()
+    if @image.nil?
+      puts "there is no image"
+    else
+      # set every pixel color to white (O) 
+      @image.each_with_index do |row, row_index|
+        row.each_with_index { |pixel_color, col_index| @image[row_index][col_index] = 'O' }
+      end
+    end
   end
   
   def process_point_command(col, row, color)
@@ -139,7 +145,7 @@ class BitmapEditor
       puts "there is no image"
     elsif 0 < col and col <= @current_max_col and 0 < row and row <= @current_max_row
       # if inputs are valid, set pixel to color
-      @image[col - 1][row - 1] = color
+      @image[row - 1][col - 1] = color
     else
       # if inputs are out of bound, print error message
       err_msg = "command failed: L #{col} #{row} #{color}"
@@ -159,12 +165,11 @@ class BitmapEditor
       # if the inputs are valid, set the pixels with the color accordingly
     
       if row_start < row_end
-        row_start.upto(row_end) {|i| @image[col-1][i-1] = color}
+        row_start.upto(row_end) {|row| @image[row-1][col-1] = color}
       else
         # if row_start and row_end are in reverse order, starts with row_end
-        row_end.upto(row_start) {|i| @image[col-1][i-1] = color}
+        row_end.upto(row_start) {|row| @image[row-1][col-1] = color}
       end
-
     else
       # if row input is out of bound, print error message
       puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (row input out of bounds)"
@@ -179,15 +184,12 @@ class BitmapEditor
       puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (row input out of bounds)"
     elsif 0 < col_start and col_start <= @current_max_col and 0 < col_end and col_end <= @current_max_col
       # if the inputs are valid, set the pixels with the color accordingly
-      
       if col_start < col_end
-        col_start.upto(col_end) {|i| @image[i-1][row-1] = color }
+        col_start.upto(col_end) {|col| @image[row-1][col-1] = color }
       else
         # if col_start and col_end are in reverse order, start with col_end
-        col_end.upto(col_start) {|i| @image[i-1][row-1] = color }
+        col_end.upto(col_start) {|col| @image[row-1][col-1] = color }
       end
-      
-      
     else
       # if column is out of bound, print error message
       puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (column input out of bounds)"
@@ -195,6 +197,12 @@ class BitmapEditor
   end
   
   def process_show_command()
+    if @image.nil?
+      puts "there is no image"
+    else
+      # output the image, one row per line
+      @image.each { |row| puts row.join("") }
+    end
   end
   
   

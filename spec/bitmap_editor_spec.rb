@@ -100,7 +100,7 @@ RSpec.describe 'BitmapEditor' do
   def is_all_white_pixels?(editor)
     # check if every pixel is set to white (O)
     is_all_white_pixels = true
-    @editor.image.each do |row|
+    editor.image.each do |row|
       break if !is_all_white_pixels
       
       row.each do |pixel|
@@ -178,7 +178,7 @@ RSpec.describe 'BitmapEditor' do
       [[1,1,'A'], [8,8,'B'], [2,4,'C'], [7,3,'D']].each do |col, row, color|
         it 'sets the point to the given color' do
           @editor.process_point_command(col,row,color)
-          expect( @editor.image[col - 1][row - 1]).to eq(color)   # col - 1 and row - 1 because arrays are zero indexed
+          expect( @editor.image[row - 1][col - 1]).to eq(color)   # col - 1 and row - 1 because arrays are zero indexed
         end
       end
     end
@@ -219,31 +219,31 @@ RSpec.describe 'BitmapEditor' do
       it 'set color correctly with input 1,1,5,A' do
         @editor.process_vertical_line_command(1, 1, 5,'A')
         
-        # set_correctly = true
-        # 0.upto(4) {|i| set_correctly &&= (@editor.image[0][i] == 'A' )}
-        # expect(set_correctly).to be true
-        expect(@editor.image[0][0]).to eq('A')
-        expect(@editor.image[0][1]).to eq('A')
-        expect(@editor.image[0][2]).to eq('A')
-        expect(@editor.image[0][3]).to eq('A')
-        expect(@editor.image[0][4]).to eq('A')
-      end
-      
-      it 'set color correctly with input 8,8,6,B' do
-        @editor.process_vertical_line_command(8,8,6,'B')
-        set_correctly = true
-        5.upto(7) {|i| set_correctly &&= (@editor.image[7][i] == 'B') }
+        set_correctly =   @editor.image[0][0] == 'A'
+        set_correctly &&= @editor.image[1][0] == 'A'
+        set_correctly &&= @editor.image[2][0] == 'A'
+        set_correctly &&= @editor.image[3][0] == 'A'
+        set_correctly &&= @editor.image[4][0] == 'A'
+        
         expect(set_correctly).to be true
       end
-      
+      it 'set color correctly with input 8,8,6,B' do
+        @editor.process_vertical_line_command(8,8,6,'B')
+
+        set_correctly =   @editor.image[7][7] == 'B'
+        set_correctly &&= @editor.image[6][7] == 'B'
+        set_correctly &&= @editor.image[5][7] == 'B'
+        
+        expect(set_correctly).to be true
+      end
       it 'set color correctly with input 3,3,3,C' do
         @editor.process_vertical_line_command(3,3,3,'C')
         expect(@editor.image[2][2]).to eq('C')
-        
       end
-      
-      
-      
+      it 'set color correctly with input 5,7,7,D' do
+        @editor.process_vertical_line_command(5,7,7,'D')
+        expect(@editor.image[6][4]).to eq('D')
+      end
       
     end
   end
@@ -281,27 +281,89 @@ RSpec.describe 'BitmapEditor' do
       it 'set color correctly with input 1,5,1,A' do
         @editor.process_horizontal_line_command(1,5,1,'A')
         
-        set_correctly = true
-        0.upto(4) {|i| set_correctly &&= (@editor.image[i][0] == 'A' )}
+        set_correctly =   @editor.image[0][4] == 'A'
+        set_correctly &&= @editor.image[0][3] == 'A'
+        set_correctly &&= @editor.image[0][2] == 'A'
+        set_correctly &&= @editor.image[0][1] == 'A'
+        set_correctly &&= @editor.image[0][0] == 'A'
+        
         expect(set_correctly).to be true
       end
-      
       it 'set color correctly with input 8,6,8,B' do
         @editor.process_horizontal_line_command(8,6,8,'B')
         
-        set_correctly = true
-        5.upto(7) {|i| set_correctly &&= (@editor.image[i][7] == 'B' )}
+        set_correctly =   @editor.image[7][5] == 'B'
+        set_correctly &&= @editor.image[7][6] == 'B'
+        set_correctly &&= @editor.image[7][7] == 'B'
+        
         expect(set_correctly).to be true
       end
-      
       it 'set color correctly with input 3,3,3,C' do
         @editor.process_horizontal_line_command(3,3,3,'C')
         expect(@editor.image[2][2]).to eq('C')
       end
+      it 'set color correctly with input 5,7,7,D' do
+        @editor.process_horizontal_line_command(5,5,7,'D')
+        expect(@editor.image[6][4]).to eq('D')
+      end
     end
   end
   
+  
+  describe '#process_clear_command' do
+    context "when image not yet created" do
+      it 'says "there is no image"' do
+        editor = BitmapEditor.new
+        expect { editor.process_clear_command() }.to output("there is no image\n").to_stdout
+      end
+    end
     
+    context "when there is a image" do
+      it 'sets the entire image to the color white (O)' do
+        editor = BitmapEditor.new
+        editor.process_create_command(8,8)
+        expect(is_all_white_pixels?(editor)).to be true
+        
+        editor.process_point_command(5,5,'A')
+        expect(is_all_white_pixels?(editor)).to be false
+        
+        editor.process_clear_command()
+        expect(is_all_white_pixels?(editor)).to be true
+        
+      end
+    end
+  end
+  
+  
+  describe '#process_show_command' do
+    context "when image not yet created" do
+      it 'says "there is no image"' do
+        editor = BitmapEditor.new
+        expect { editor.process_show_command() }.to output("there is no image\n").to_stdout
+      end
+    end
+    
+    context "when there is a image" do
+      it 'outputs the image' do
+        editor = BitmapEditor.new
+        editor.process_create_command(5,6)
+        editor.process_point_command(1,3,'A')
+        editor.process_vertical_line_command(2,3,6,'W')
+        editor.process_horizontal_line_command(3,5,2,'Z')
+        
+        expected_img_output =  "OOOOO\n"
+        expected_img_output += "OOZZZ\n"
+        expected_img_output += "AWOOO\n"
+        expected_img_output += "OWOOO\n"
+        expected_img_output += "OWOOO\n"
+        expected_img_output += "OWOOO\n"
+        
+        expect { editor.process_show_command() }.to output(expected_img_output).to_stdout
+        
+        
+      end
+    end
+  end
   
 
   
