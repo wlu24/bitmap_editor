@@ -137,7 +137,7 @@ RSpec.describe 'BitmapEditor' do
     
     context "when arguments are out of bounds" do
       before(:each)  { @editor = BitmapEditor.new }
-      out_of_bounds_commands = [[0,0],[251,251], [251,1], [1,251], [0,250], [250,0]]
+      out_of_bounds_commands = [[0,0],[251,251], [251,1], [1,251], [0,250], [250,0],[1,-1], [-1,1], [-1,-1]]
       out_of_bounds_commands.each do |col,row|
         it "does not create an image and say 'create image failed: input(s) out of bound'" do
           err_msg = "create image failed: I #{col} #{row}" 
@@ -165,7 +165,7 @@ RSpec.describe 'BitmapEditor' do
     end
     
     context "when inputs are out of bounds" do
-      [[0,0,'A'], [0,1,'A'], [1,0,'A'], [8,9,'A'], [9,8,'A'], [9,9, 'A']].each do |col, row, color|
+      [[0,0,'A'], [0,1,'A'], [1,0,'A'], [8,9,'A'], [9,8,'A'], [9,9, 'A'], [1,-1,'A'], [-1,1,'A'], [-1,-1,'A']].each do |col, row, color|
         it "says 'command failed'" do
           err_msg = "command failed: L #{col} #{row} #{color}"
           err_msg += "     (input out of bound; X must be between 1 and #{@editor.current_max_col}, Y must be between 1 and #{@editor.current_max_row})\n"
@@ -204,11 +204,12 @@ RSpec.describe 'BitmapEditor' do
       it 'says "command failed"' do
         expect {@editor.process_vertical_line_command(0,1,2,"A") }.to output("command failed: V 0 1 2 A     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
         expect {@editor.process_vertical_line_command(9,1,2,"O") }.to output("command failed: V 9 1 2 O     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
+        expect {@editor.process_vertical_line_command(-1,1,2,"O") }.to output("command failed: V -1 1 2 O     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
       end
     end
     
     context "when row inputs are out of bounds" do
-      [[1,0,1,'A'],[1,1,9,'A'],[1,0,9,'A']].each do |col, row_start, row_end, color|
+      [[1,0,1,'A'],[1,1,9,'A'],[1,0,9,'A'], [1,-1,3,'A'], [1,2,-1,'A']].each do |col, row_start, row_end, color|
         it 'says "command failed"' do
           err_msg = "command failed: V #{col} #{row_start} #{row_end} #{color}     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n"
           expect {@editor.process_vertical_line_command(col,row_start,row_end, color) }.to output(err_msg).to_stdout
@@ -263,7 +264,7 @@ RSpec.describe 'BitmapEditor' do
     end
     
     context "when column inputs are out of bounds" do
-      [[0,1,1,'A'],[1,9,1,'A'],[0,9,1,'A']].each do |col_start, col_end, row, color|
+      [[0,1,1,'A'],[1,9,1,'A'],[0,9,1,'A'],[-1,4,2,'A'],[3,-1,2,'A']].each do |col_start, col_end, row, color|
         it 'says "command failed"' do
           err_msg = "command failed: H #{col_start} #{col_end} #{row} #{color}     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n"
           expect {@editor.process_horizontal_line_command(col_start,col_end,row, color) }.to output(err_msg).to_stdout
@@ -275,6 +276,7 @@ RSpec.describe 'BitmapEditor' do
       it 'says "command fail"' do
         expect {@editor.process_horizontal_line_command(1,2,0,"A") }.to output("command failed: H 1 2 0 A     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
         expect {@editor.process_horizontal_line_command(1,2,9,"O") }.to output("command failed: H 1 2 9 O     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
+        expect {@editor.process_horizontal_line_command(1,2,-1,"O") }.to output("command failed: H 1 2 -1 O     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
       end
     end
     
@@ -426,6 +428,7 @@ RSpec.describe 'BitmapEditor' do
         expect{ @editor.run("#{examples_path}/invalid_commands_interweaving_valid_commands.txt")}.to output(expected_output).to_stdout
       end
     end
+    
   end
   
 end
