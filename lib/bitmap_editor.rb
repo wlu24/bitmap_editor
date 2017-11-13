@@ -149,7 +149,7 @@ class BitmapEditor
     else
       # if inputs are out of bound, print error message
       err_msg = "command failed: L #{col} #{row} #{color}"
-      err_msg += "     (input out of bound; max col is #{@current_max_col}, max row is #{@current_max_row})"
+      err_msg += "     (input out of bound; X must be between 1 and #{@current_max_col}, Y must be between 1 and #{@current_max_row})"
       puts err_msg
     end
   end
@@ -160,7 +160,7 @@ class BitmapEditor
       puts "there is no image"
     elsif col < 1 or col > @current_max_col
       # if col is out of bound, print error message
-      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (column input out of bounds)"
+      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (X out of bounds; must be between 1 and #{@current_max_col})"
     elsif 0 < row_start and row_start <= @current_max_row and 0 < row_end and row_end <= @current_max_row
       # if the inputs are valid, set the pixels with the color accordingly
     
@@ -172,7 +172,7 @@ class BitmapEditor
       end
     else
       # if row input is out of bound, print error message
-      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (row input out of bounds)"
+      puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (Y out of bounds; must be between 1 and #{@current_max_row})"
     end
   end
   
@@ -181,7 +181,7 @@ class BitmapEditor
       puts "there is no image"
     elsif row < 1 or row > @current_max_row
       # if row is out of bound, print error message
-      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (row input out of bounds)"
+      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (Y out of bounds; must be between 1 and #{@current_max_row})"
     elsif 0 < col_start and col_start <= @current_max_col and 0 < col_end and col_end <= @current_max_col
       # if the inputs are valid, set the pixels with the color accordingly
       if col_start < col_end
@@ -192,7 +192,7 @@ class BitmapEditor
       end
     else
       # if column is out of bound, print error message
-      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (column input out of bounds)"
+      puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (X out of bounds; must be between 1 and #{@current_max_col})"
     end
   end
   
@@ -202,6 +202,8 @@ class BitmapEditor
     else
       # output the image, one row per line
       @image.each { |row| puts row.join("") }
+      # @image[0..-2].each {|row| puts row.join("") }
+      # print @image[-1].join("")
     end
   end
   

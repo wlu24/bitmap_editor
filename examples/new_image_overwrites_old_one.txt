@@ -1,0 +1,24 @@
+I 5 6
+L 1 3 A
+V 2 3 6 W
+H 3 5 2 Z
+S
+L 1 7
+I 8 8
+H 3 6 1 A
+H 3 6 8 B
+V 1 3 6 C
+V 8 3 6 D
+L 1 1 E
+L 8 1 E
+L 1 8 E
+L 8 8 E
+H 4 5 4 F
+H 4 5 5 F
+S
+H 9 9 9 C
+I 5 6
+L 1 3 A
+V 2 3 6 W
+H 3 5 2 Z
+S

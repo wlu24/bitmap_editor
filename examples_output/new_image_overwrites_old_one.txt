@@ -1,0 +1,22 @@
+OOOOO
+OOZZZ
+AWOOO
+OWOOO
+OWOOO
+OWOOO
+wrong number of arguments: L 1 7
+EOAAAAOE
+OOOOOOOO
+COOOOOOD
+COOFFOOD
+COOFFOOD
+COOOOOOD
+OOOOOOOO
+EOBBBBOE
+command failed: H 9 9 9 C     (Y out of bounds; must be between 1 and 8)
+OOOOO
+OOZZZ
+AWOOO
+OWOOO
+OWOOO
+OWOOO

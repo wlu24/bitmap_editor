@@ -168,7 +168,8 @@ RSpec.describe 'BitmapEditor' do
       [[0,0,'A'], [0,1,'A'], [1,0,'A'], [8,9,'A'], [9,8,'A'], [9,9, 'A']].each do |col, row, color|
         it "says 'command failed'" do
           err_msg = "command failed: L #{col} #{row} #{color}"
-          err_msg += "     (input out of bound; max col is #{@editor.current_max_col}, max row is #{@editor.current_max_row})\n"
+          err_msg += "     (input out of bound; X must be between 1 and #{@editor.current_max_col}, Y must be between 1 and #{@editor.current_max_row})\n"
+          
           expect { @editor.process_point_command(col, row, color) }.to output(err_msg).to_stdout
         end
       end
@@ -201,15 +202,15 @@ RSpec.describe 'BitmapEditor' do
     
     context "when column input are out of bounds" do
       it 'says "command failed"' do
-        expect {@editor.process_vertical_line_command(0,1,2,"A") }.to output("command failed: V 0 1 2 A     (column input out of bounds)\n").to_stdout
-        expect {@editor.process_vertical_line_command(9,1,2,"O") }.to output("command failed: V 9 1 2 O     (column input out of bounds)\n").to_stdout
+        expect {@editor.process_vertical_line_command(0,1,2,"A") }.to output("command failed: V 0 1 2 A     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
+        expect {@editor.process_vertical_line_command(9,1,2,"O") }.to output("command failed: V 9 1 2 O     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
       end
     end
     
     context "when row inputs are out of bounds" do
       [[1,0,1,'A'],[1,1,9,'A'],[1,0,9,'A']].each do |col, row_start, row_end, color|
         it 'says "command failed"' do
-          err_msg = "command failed: V #{col} #{row_start} #{row_end} #{color}     (row input out of bounds)\n"
+          err_msg = "command failed: V #{col} #{row_start} #{row_end} #{color}     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n"
           expect {@editor.process_vertical_line_command(col,row_start,row_end, color) }.to output(err_msg).to_stdout
         end
       end
@@ -264,7 +265,7 @@ RSpec.describe 'BitmapEditor' do
     context "when column inputs are out of bounds" do
       [[0,1,1,'A'],[1,9,1,'A'],[0,9,1,'A']].each do |col_start, col_end, row, color|
         it 'says "command failed"' do
-          err_msg = "command failed: H #{col_start} #{col_end} #{row} #{color}     (column input out of bounds)\n"
+          err_msg = "command failed: H #{col_start} #{col_end} #{row} #{color}     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n"
           expect {@editor.process_horizontal_line_command(col_start,col_end,row, color) }.to output(err_msg).to_stdout
         end
       end
@@ -272,8 +273,8 @@ RSpec.describe 'BitmapEditor' do
     
     context "when row input is out of bounds" do
       it 'says "command fail"' do
-        expect {@editor.process_horizontal_line_command(1,2,0,"A") }.to output("command failed: H 1 2 0 A     (row input out of bounds)\n").to_stdout
-        expect {@editor.process_horizontal_line_command(1,2,9,"O") }.to output("command failed: H 1 2 9 O     (row input out of bounds)\n").to_stdout
+        expect {@editor.process_horizontal_line_command(1,2,0,"A") }.to output("command failed: H 1 2 0 A     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
+        expect {@editor.process_horizontal_line_command(1,2,9,"O") }.to output("command failed: H 1 2 9 O     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
       end
     end
     
@@ -365,6 +366,66 @@ RSpec.describe 'BitmapEditor' do
     end
   end
   
-
+  describe '#run' do
+    
+    before(:each) { @editor = BitmapEditor.new}
+    root = File.dirname(__dir__)
+    examples_path = "#{root}/examples"
+    output_path = "#{root}/examples_output"
+    
+    context 'given input file does not exist' do
+      it 'says "please provide correct file"' do
+        expect{ @editor.run("#{examples_path}/abcdefg.txt")}.to output("please provide correct file\n").to_stdout
+      end
+    end
+    context 'normal image 1' do
+      it 'outputs correctly' do
+        expected_output = File.read("#{output_path}/example1.txt")
+        expect{ @editor.run("#{examples_path}/example1.txt")}.to output(expected_output).to_stdout 
+      end
+    end
+    context 'normal image 2' do
+      it 'outputs correctly' do
+        expected_output = File.read("#{output_path}/example2.txt")
+        expect{ @editor.run("#{examples_path}/example2.txt")}.to output(expected_output).to_stdout 
+      end
+    end
+    context 'big image with commands drawing the letters HI' do
+      it 'outputs image resembling the letters HI' do
+        expected_output = File.read("#{output_path}/big_img_HI.txt")
+        expect{ @editor.run("#{examples_path}/big_img_HI.txt")}.to output(expected_output).to_stdout
+      end
+    end
+    context 'no create command' do
+      it 'says "there is no image" when other commands are called' do
+        expected_output = File.read("#{output_path}/no_img1.txt")
+        expect{ @editor.run("#{examples_path}/no_img1.txt")}.to output(expected_output).to_stdout 
+      end
+    end
+    context 'create command after several commands in' do
+      it 'says "there is no image" when calling command before a image is created, then execute the commands normally after image created' do
+        expected_output = File.read("#{output_path}/create_img_after_several_commands.txt")
+        expect{ @editor.run("#{examples_path}/create_img_after_several_commands.txt")}.to output(expected_output).to_stdout
+      end
+    end
+    context 'newly created image overwrites the previous image' do
+      it 'outputs the newest image created when show command is called' do
+        expected_output = File.read("#{output_path}/new_image_overwrites_old_one.txt")
+        expect{ @editor.run("#{examples_path}/new_image_overwrites_old_one.txt")}.to output(expected_output).to_stdout
+      end
+    end
+    context 'newer draw command (L, V, H) overwrites pixel color set by previous draw command' do
+      it 'outputs the image resulting from newest draw overwrites' do
+        expected_output = File.read("#{output_path}/draw_commands_overwrites.txt")
+        expect{ @editor.run("#{examples_path}/draw_commands_overwrites.txt")}.to output(expected_output).to_stdout
+      end
+    end
+    context 'handles invalid commands gracefully, while executing valid commands normally (valid commands from example2)' do
+      it 'says corresponding error messages when encountering invalid commands, and execute as normal when encountering valid commands' do
+        expected_output = File.read("#{output_path}/invalid_commands_interweaving_valid_commands.txt")
+        expect{ @editor.run("#{examples_path}/invalid_commands_interweaving_valid_commands.txt")}.to output(expected_output).to_stdout
+      end
+    end
+  end
   
 end
