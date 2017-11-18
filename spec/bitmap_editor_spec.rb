@@ -1,5 +1,5 @@
 require 'bitmap_editor.rb'
-
+require 'helper.rb'
 
 RSpec.describe 'BitmapEditor' do
   
@@ -95,26 +95,7 @@ RSpec.describe 'BitmapEditor' do
       end
     end
   end
-  
-  
-  def is_all_white_pixels?(editor)
-    # check if every pixel is set to white (O)
-    is_all_white_pixels = true
-    editor.image.each do |row|
-      break if !is_all_white_pixels
-      
-      row.each do |pixel|
-        if pixel != "O"
-          is_all_white_pixels = false
-          break
-        end
-      end
-    end
-    
-    return is_all_white_pixels
-  end
-  
-  
+
   describe '#process_create_command' do
     context "when arguments are within bounds" do
       before(:each)  { @editor = BitmapEditor.new }
@@ -129,7 +110,7 @@ RSpec.describe 'BitmapEditor' do
           expect(@editor.image.length).to eq(row)
           expect(@editor.image[0].length).to eq(col)
           
-          expect(is_all_white_pixels?(@editor)).to be true
+          expect(Helper.all_white_pixel?(@editor.image)).to be true
           
         end
       end
@@ -325,13 +306,13 @@ RSpec.describe 'BitmapEditor' do
       it 'sets the entire image to the color white (O)' do
         editor = BitmapEditor.new
         editor.process_create_command(8,8)
-        expect(is_all_white_pixels?(editor)).to be true
+        expect(Helper.all_white_pixel?(editor.image)).to be true
         
         editor.process_point_command(5,5,'A')
-        expect(is_all_white_pixels?(editor)).to be false
+        expect(Helper.all_white_pixel?(editor.image)).to be false
         
         editor.process_clear_command()
-        expect(is_all_white_pixels?(editor)).to be true
+        expect(Helper.all_white_pixel?(editor.image)).to be true
         
       end
     end
