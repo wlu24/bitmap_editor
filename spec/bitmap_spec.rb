@@ -112,4 +112,40 @@ RSpec.describe 'Bitmap' do
       end
     end
   end
+
+  describe '#set_pixel_color' do
+    context 'when arguments are out of bounds' do
+      bitmap = Bitmap.new(8, 9)
+      invalid_cols = [[0, 1, 1, 5, 'A'], [9, 1, 6, 3, 'A'], [0, 9, 9, 1, 'A'], [8, -1, 1, 9, 'A']]
+      invalid_rows = [[8, 8, 0, 1, 'A'], [8, 1, 10, 1, 'A'], [4, 7, 0, 10, 'A'], [5, 1, -1, 9, 'A']]
+      invalid_both = [[0, 1, 0, 1, 'A'], [-1, 1, 1, -1, 'A'], [9, -1, -1, 10, 'A'], [0, 5, 3, -2, 'A']]
+      invalid_args = invalid_cols + invalid_rows + invalid_both
+      invalid_args.each do |c1, c2, r1, r2, color|
+        it 'raises error' do
+          expect { bitmap.set_pixel_color(c1, c2, r1, r2, color) }.to raise_error(ArgumentError)
+        end
+      end
+    end
+    context 'when arguments are in bounds' do
+      before(:each) { @bitmap = Bitmap.new(8, 9) }
+      it 'set color for a single pixel when col1 == col2 and row1 == row2' do
+        @bitmap.set_pixel_color(1, 1, 1, 1, 'A')
+        expect(@bitmap.get_pixel_color(0, 0)).to eq('A')
+      end
+      it 'set color for pixels on a vertical line when col1 == col2 and row1 != row2' do
+        @bitmap.set_pixel_color(2, 2, 1, 3, 'B')
+        set_correctly = @bitmap.get_pixel_color(1, 0) == 'B'
+        set_correctly &&= @bitmap.get_pixel_color(1, 1) == 'B'
+        set_correctly &&= @bitmap.get_pixel_color(1, 2) == 'B'
+        expect(set_correctly).to be true
+      end
+      it 'set color for pixels on a horizontal line when col1 != col2 and row1 == row2' do
+        @bitmap.set_pixel_color(4, 2, 5, 5, 'C')
+        set_correctly = @bitmap.get_pixel_color(3, 4) == 'C'
+        set_correctly &&= @bitmap.get_pixel_color(2, 4) == 'C'
+        set_correctly &&= @bitmap.get_pixel_color(1, 4) == 'C'
+        expect(set_correctly).to be true
+      end
+    end
+  end
 end

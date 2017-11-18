@@ -1,3 +1,5 @@
+# Bitmaps are represented as an M x N matrix of pixels with each
+# element representing a colour.
 class Bitmap
   MIN_COL = 1
   MIN_ROW = 1
@@ -17,6 +19,25 @@ class Bitmap
   end
 
   def set_pixel_color(col1, col2, row1, row2, color)
+    if !valid_column_range?(col1, col2) || !valid_row_range?(row1, row2)
+      error_msg = "column must be within #{MIN_COL} and #{@max_col}; "
+      error_msg += "row must be within #{MIN_ROW} and #{@max_row}"
+      raise ArgumentError, error_msg
+    end
+
+    cols = [col1, col2].sort
+    rows = [row1, row2].sort
+
+    col_start = cols[0]
+    col_end = cols[1]
+    row_start = rows[0]
+    row_end = rows[1]
+
+    col_start.upto(col_end) do |col|
+      row_start.upto(row_end) do |row|
+        @pixel_2d_array[row - 1][col - 1] = color
+      end
+    end
   end
 
   def get_pixel_color(col, row)
