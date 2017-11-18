@@ -1,13 +1,10 @@
 class BitmapEditor
-  
+
   @@max_col = 250
   @@max_row = 250
-  
-  attr_reader :image
-  attr_reader :current_max_col
-  attr_reader :current_max_row
-  
-  
+
+  attr_reader :image, :current_max_col, :current_max_row
+
   def initialize()
     @image = nil
     @current_max_col = 0
@@ -16,20 +13,14 @@ class BitmapEditor
 
 
   def run(file)
-    return puts "please provide correct file" if file.nil? || !File.exists?(file)
+    return puts 'please provide correct file' if file.nil? || !File.exists?(file)
     File.open(file).each { |line| parse_command(line) }
-    
   end
-  
-  
-  
-  
+
   def parse_command(command)
-    
     command = command.chomp
     command_array = command.split(' ')
-    
-    
+
     case command_array[0]
     when 'I'  
       # valid create command: "I M N"
@@ -103,35 +94,30 @@ class BitmapEditor
     else
       puts "unrecognised command :( : #{command}"
     end
-  
   end
-  
-  
+
   ############# command processing ####################
-  
-  
+
   def process_create_command(col_size, row_size)
     if (0 < col_size and col_size <= @@max_col ) and (0 < row_size and row_size <= @@max_row )
       # if arguments are in bounds, create a new image of size col_size X row_size
       @current_max_col = col_size
       @current_max_row = row_size
-      
+
       @image = []
       row_size.times { @image.push( Array.new(col_size, "O")) }
-      
     else
       # if arguments are out of bounds, print error message
       err_msg = "create image failed: I #{col_size} #{row_size}" 
       err_msg += "     (inputs out of bound; column size must be between 1 and #{@@max_col},"
       err_msg += " row size must be between 1 and #{@@max_row})"
       puts err_msg
-      
     end
   end
-  
+
   def process_clear_command()
     if @image.nil?
-      puts "there is no image"
+      puts 'there is no image'
     else
       # set every pixel color to white (O) 
       @image.each_with_index do |row, row_index|
@@ -139,10 +125,10 @@ class BitmapEditor
       end
     end
   end
-  
+
   def process_point_command(col, row, color)
     if @image.nil?
-      puts "there is no image"
+      puts 'there is no image'
     elsif 0 < col and col <= @current_max_col and 0 < row and row <= @current_max_row
       # if inputs are valid, set pixel to color
       @image[row - 1][col - 1] = color
@@ -153,17 +139,17 @@ class BitmapEditor
       puts err_msg
     end
   end
-  
+
   def process_vertical_line_command(col, row_start, row_end, color)
     # vertical_line range can start with either row_start or row_end
     if @image.nil?
-      puts "there is no image"
+      puts 'there is no image'
     elsif col < 1 or col > @current_max_col
       # if col is out of bound, print error message
       puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (X out of bounds; must be between 1 and #{@current_max_col})"
     elsif 0 < row_start and row_start <= @current_max_row and 0 < row_end and row_end <= @current_max_row
       # if the inputs are valid, set the pixels with the color accordingly
-    
+
       if row_start < row_end
         row_start.upto(row_end) {|row| @image[row-1][col-1] = color}
       else
@@ -175,10 +161,10 @@ class BitmapEditor
       puts "command failed: V #{col} #{row_start} #{row_end} #{color}     (Y out of bounds; must be between 1 and #{@current_max_row})"
     end
   end
-  
+
   def process_horizontal_line_command(col_start, col_end, row, color)
     if @image.nil?
-      puts "there is no image"
+      puts 'there is no image'
     elsif row < 1 or row > @current_max_row
       # if row is out of bound, print error message
       puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (Y out of bounds; must be between 1 and #{@current_max_row})"
@@ -195,39 +181,33 @@ class BitmapEditor
       puts "command failed: H #{col_start} #{col_end} #{row} #{color}     (X out of bounds; must be between 1 and #{@current_max_col})"
     end
   end
-  
+
   def process_show_command()
     if @image.nil?
-      puts "there is no image"
+      puts 'there is no image'
     else
       # output the image, one row per line
-      @image.each { |row| puts row.join("") }
+      @image.each { |row| puts row.join('') }
       # @image[0..-2].each {|row| puts row.join("") }
       # print @image[-1].join("")
     end
   end
-  
-  
-  
+
   ############## class methods ################
-  
-  
+
   def self.integer?(string)
-    return !/\A[-+]?\d+\z/.match(string).nil?
+    !/\A[-+]?\d+\z/.match(string).nil?
   end
-  
+
   def self.valid_color?(string)
-    return ( (string.length == 1) and (!/\A[A-Z]\z/.match(string).nil?)  )
+    ((string.length == 1) && (!/\A[A-Z]\z/.match(string).nil?))
   end
-  
-  
+
   def self.max_col
     @@max_col
   end
-  
+
   def self.max_row
     @@max_row
   end
-  
-  
 end
