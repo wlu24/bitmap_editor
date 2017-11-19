@@ -1,7 +1,6 @@
 # Bitmaps are represented as an M x N matrix of pixels with each
 # element representing a colour.
 class Bitmap
-
   attr_reader :col_size, :row_size
 
   def initialize(col_size, row_size)
@@ -60,10 +59,10 @@ class Bitmap
   end
 
   def validate_coordinates(col1, col2, row1, row2)
-    if !valid_column_range?(col1, col2) || !valid_row_range?(row1, row2)
-      error_msg = "column must be within 0 and #{@col_size - 1}; "
-      error_msg += "row must be within 0 and #{@row_size - 1}"
-      raise ArgumentError, error_msg
-    end
+    return if valid_column_range?(col1, col2) && valid_row_range?(row1, row2)
+
+    error_msg = "column must be within 0 and #{@col_size - 1}; "
+    error_msg += "row must be within 0 and #{@row_size - 1}"
+    raise ArgumentError, error_msg
   end
 end

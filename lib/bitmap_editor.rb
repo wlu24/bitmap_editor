@@ -2,7 +2,6 @@ require_relative 'bitmap.rb'
 
 # A basic interactive bitmap editor
 class BitmapEditor
-
   attr_reader :bitmap, :previous_command
 
   MIN_SUPPORTED_COL = 1
@@ -10,13 +9,13 @@ class BitmapEditor
   MIN_SUPPORTED_ROW = 1
   MAX_SUPPORTED_ROW = 250
 
-  def initialize()
+  def initialize
     @bitmap = nil
     @previous_command = nil
   end
 
   def run(file)
-    return puts 'please provide correct file' if file.nil? || !File.exists?(file)
+    return puts 'please provide correct file' if file.nil? || !File.exist?(file)
     File.open(file).each { |line| parse_command(line) }
   end
 
@@ -26,12 +25,12 @@ class BitmapEditor
     @previous_command = command
 
     case command_array[0]
-    when 'I'  
+    when 'I'
       # valid create command: "I M N"
       # M is an integer specifying column size, N is an integer specifying row size
       if command_array.length != 3
         puts "wrong number of arguments: #{command}"
-      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2])
+      elsif BitmapEditor.integer?(command_array[1]) && BitmapEditor.integer?(command_array[2])
         col_size = command_array[1].to_i
         row_size = command_array[2].to_i
         process_create_command(col_size, row_size)
@@ -41,7 +40,7 @@ class BitmapEditor
     when 'C'
       # valid clear command: "C"
       if command_array.length == 1
-        process_clear_command()
+        process_clear_command
       else
         puts "wrong number of arguments: #{command}"
       end
@@ -50,7 +49,7 @@ class BitmapEditor
       # X is an integer specifying column number, Y is an integer specifying row number, C is a capital letter specifying color
       if command_array.length != 4
         puts "wrong number of arguments: #{command}"
-      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.valid_color?(command_array[3])
+      elsif BitmapEditor.integer?(command_array[1]) && BitmapEditor.integer?(command_array[2]) && BitmapEditor.valid_color?(command_array[3])
         col = command_array[1].to_i
         row = command_array[2].to_i
         color = command_array[3]
@@ -64,7 +63,7 @@ class BitmapEditor
       # Y2 is an integer specifying row end number, C is a capital letter specifying color
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
-      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
+      elsif BitmapEditor.integer?(command_array[1]) && BitmapEditor.integer?(command_array[2]) && BitmapEditor.integer?(command_array[3]) && BitmapEditor.valid_color?(command_array[4])
         col = command_array[1].to_i
         row_start = command_array[2].to_i
         row_end = command_array[3].to_i
@@ -79,7 +78,7 @@ class BitmapEditor
       # Y is an integer specifying row number, C is a capital letter specifying color
       if command_array.length != 5
         puts "wrong number of arguments: #{command}"
-      elsif BitmapEditor.integer?(command_array[1]) and BitmapEditor.integer?(command_array[2]) and BitmapEditor.integer?(command_array[3]) and BitmapEditor.valid_color?(command_array[4])
+      elsif BitmapEditor.integer?(command_array[1]) && BitmapEditor.integer?(command_array[2]) && BitmapEditor.integer?(command_array[3]) && BitmapEditor.valid_color?(command_array[4])
         col_start = command_array[1].to_i
         col_end = command_array[2].to_i
         row = command_array[3].to_i
@@ -91,7 +90,7 @@ class BitmapEditor
     when 'S'
       # valid show command: "S"
       if command_array.length == 1
-        process_show_command()
+        process_show_command
       else
         puts "wrong number of arguments: #{command}"
       end
@@ -113,7 +112,7 @@ class BitmapEditor
     end
   end
 
-  def process_clear_command()
+  def process_clear_command
     if @bitmap.nil?
       puts 'there is no image'
     else
@@ -133,7 +132,7 @@ class BitmapEditor
     set_pixel_color(col_start, col_end, row, row, color)
   end
 
-  def process_show_command()
+  def process_show_command
     if @bitmap.nil?
       puts 'there is no image'
     else
@@ -157,23 +156,23 @@ class BitmapEditor
       end
     end
   end
-  
+
   def get_pixel_color(col, row)
     @bitmap.get_pixel_color(col - 1, row - 1)
   end
 
-  def get_column_size
+  def column_size
     @bitmap.col_size
   end
 
-  def get_row_size
+  def row_size
     @bitmap.row_size
   end
 
   ############## class methods ################
   def valid_size?(col_size, row_size)
     valid = MIN_SUPPORTED_COL <= col_size && col_size <= MAX_SUPPORTED_COL
-    valid &&= MIN_SUPPORTED_ROW <= row_size && row_size <= MAX_SUPPORTED_ROW
+    valid && MIN_SUPPORTED_ROW <= row_size && row_size <= MAX_SUPPORTED_ROW
   end
 
   def self.integer?(string)
@@ -181,6 +180,6 @@ class BitmapEditor
   end
 
   def self.valid_color?(string)
-    ((string.length == 1) && (!/\A[A-Z]\z/.match(string).nil?))
+    (string.length == 1 && !/\A[A-Z]\z/.match(string).nil?)
   end
 end
