@@ -1,4 +1,4 @@
-create image failed: I 251 6     (inputs out of bound; column size must be between 1 and 250, row size must be between 1 and 250)
+command failed: I 251 6     column size must be within 1 and 250, row size must be within 1 and 250
 there is no image
 there is no image
 there is no image

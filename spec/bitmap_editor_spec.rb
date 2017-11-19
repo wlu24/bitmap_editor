@@ -2,21 +2,17 @@ require 'bitmap_editor.rb'
 require 'helper.rb'
 
 RSpec.describe 'BitmapEditor' do
-  
+
   describe 'constructor' do
     editor = BitmapEditor.new
-    it 'sets image to nil' do
-      expect(editor.image).to be_nil
+    it 'sets @bitmap to nil' do
+      expect(editor.bitmap).to be_nil
     end
-    it 'sets current_max_row to 0' do
-      expect(editor.current_max_row).to eq(0)
-    end
-    it 'sets current_max_col to 0' do
-      expect(editor.current_max_col).to eq(0)
+    it 'sets @previous_command to nil' do
+      expect(editor.previous_command).to be_nil
     end
   end
-  
-  
+
   describe '#parse_command' do
     editor = BitmapEditor.new
     
@@ -56,9 +52,6 @@ RSpec.describe 'BitmapEditor' do
       
     end
   end
-  
-  
-  
 
   describe '#integer?' do
     context 'when the string argument does not represents an integer' do
@@ -68,7 +61,6 @@ RSpec.describe 'BitmapEditor' do
         end
       end
     end
-    
     context 'when the string argument represents an integer' do
       ['123','012','120', '1', '-1', '-123'].each do |s|
         it 'returns true' do
@@ -77,7 +69,7 @@ RSpec.describe 'BitmapEditor' do
       end
     end
   end
-  
+
   describe '#valid_color?' do 
     context 'when argument is valid' do
       ('A'..'Z').each do |c|
@@ -86,7 +78,6 @@ RSpec.describe 'BitmapEditor' do
         end
       end
     end
-    
     context 'when argument is invalid' do
       ['a', 'aA', 'Aa', 'AA', '1', '123', 'blue', ''].each do |c|
         it 'returns false' do 
@@ -101,199 +92,169 @@ RSpec.describe 'BitmapEditor' do
       before(:each)  { @editor = BitmapEditor.new }
       in_bounds_commands = [[1,1],[10,20],[50,50],[250,250], [250,1], [1,250]]
       in_bounds_commands.each do |col,row|
-        it "creates an image of size where column = #{col} and row = #{row} with all pixels colored white (O)" do
+        it "creates a bitmap of the correct size" do
           @editor.process_create_command(col,row)
-          
-          expect(@editor.current_max_col).to eq(col)
-          expect(@editor.current_max_row).to eq(row)
-          
-          expect(@editor.image.length).to eq(row)
-          expect(@editor.image[0].length).to eq(col)
-          
-          expect(Helper.all_white_pixel?(@editor.image)).to be true
-          
+          expect(@editor.bitmap.col_size).to eq(col)
+          expect(@editor.bitmap.row_size).to eq(row)
         end
       end
     end
-    
     context "when arguments are out of bounds" do
       before(:each)  { @editor = BitmapEditor.new }
       out_of_bounds_commands = [[0,0],[251,251], [251,1], [1,251], [0,250], [250,0],[1,-1], [-1,1], [-1,-1]]
       out_of_bounds_commands.each do |col,row|
-        it "does not create an image and say 'create image failed: input(s) out of bound'" do
-          err_msg = "create image failed: I #{col} #{row}" 
-          err_msg += "     (inputs out of bound; column size must be between 1 and #{BitmapEditor.max_col},"
-          err_msg += " row size must be between 1 and #{BitmapEditor.max_row})\n"
-          expect {@editor.process_create_command(col,row) }.to output(err_msg).to_stdout
+        it "does not create the bitmap and prints the error message" do
+          error_msg = "command failed: #{@editor.previous_command}     "
+          error_msg += "column size must be within #{BitmapEditor::MIN_SUPPORTED_COL} and #{BitmapEditor::MAX_SUPPORTED_COL}, "
+          error_msg += "row size must be within #{BitmapEditor::MIN_SUPPORTED_ROW} and #{BitmapEditor::MAX_SUPPORTED_ROW}\n"
+          expect {@editor.process_create_command(col,row) }.to output(error_msg).to_stdout
         end
       end
     end
   end
-  
-  
-  
+
   describe '#process_point_command' do
-    context "when image not yet created" do
+    context 'when image not yet created' do
       it 'says "there is no image"' do
         @editor = BitmapEditor.new
-        expect {@editor.process_point_command(1,1, "O") }.to output("there is no image\n").to_stdout
+        expect {@editor.process_point_command(1, 1, 'A') }.to output("there is no image\n").to_stdout
       end
     end
     
     before(:each) do
       @editor = BitmapEditor.new
-      @editor.process_create_command(8,8)
+      @editor.process_create_command(8, 8)
     end
-    
-    context "when inputs are out of bounds" do
-      [[0,0,'A'], [0,1,'A'], [1,0,'A'], [8,9,'A'], [9,8,'A'], [9,9, 'A'], [1,-1,'A'], [-1,1,'A'], [-1,-1,'A']].each do |col, row, color|
-        it "says 'command failed'" do
-          err_msg = "command failed: L #{col} #{row} #{color}"
-          err_msg += "     (input out of bound; X must be between 1 and #{@editor.current_max_col}, Y must be between 1 and #{@editor.current_max_row})\n"
-          
-          expect { @editor.process_point_command(col, row, color) }.to output(err_msg).to_stdout
-        end
-      end
-    end
-    
-    context "when inputs are valid" do
-      [[1,1,'A'], [8,8,'B'], [2,4,'C'], [7,3,'D']].each do |col, row, color|
-        it 'sets the point to the given color' do
-          @editor.process_point_command(col,row,color)
-          expect( @editor.image[row - 1][col - 1]).to eq(color)   # col - 1 and row - 1 because arrays are zero indexed
-        end
-      end
-    end
-    
-  end
-  
-  
-  describe '#process_vertical_line_command' do
-    context "when image not yet created" do
-      it 'says "there is no image"' do
-        @editor = BitmapEditor.new
-        expect {@editor.process_vertical_line_command(1,1,2,"O") }.to output("there is no image\n").to_stdout
-      end
-    end
-    
-    before(:each) do
-      @editor = BitmapEditor.new
-      @editor.process_create_command(8,8)
-    end
-    
-    context "when column input are out of bounds" do
-      it 'says "command failed"' do
-        expect {@editor.process_vertical_line_command(0,1,2,"A") }.to output("command failed: V 0 1 2 A     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
-        expect {@editor.process_vertical_line_command(9,1,2,"O") }.to output("command failed: V 9 1 2 O     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
-        expect {@editor.process_vertical_line_command(-1,1,2,"O") }.to output("command failed: V -1 1 2 O     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n").to_stdout
-      end
-    end
-    
-    context "when row inputs are out of bounds" do
-      [[1,0,1,'A'],[1,1,9,'A'],[1,0,9,'A'], [1,-1,3,'A'], [1,2,-1,'A']].each do |col, row_start, row_end, color|
+    context 'when inputs are out of bounds' do
+      invalid_inputs = [[0, 0, 'A'], [0, 1, 'A'], [1, 0, 'A'], [8, 9, 'A']]
+      invalid_inputs += [[9, 8, 'A'], [9, 9, 'A'], [1, -1, 'A'], [-1, 1, 'A'], [-1, -1, 'A']]
+      invalid_inputs.each do |col, row, color|
         it 'says "command failed"' do
-          err_msg = "command failed: V #{col} #{row_start} #{row_end} #{color}     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n"
-          expect {@editor.process_vertical_line_command(col,row_start,row_end, color) }.to output(err_msg).to_stdout
+          error_msg = "command failed: #{@editor.previous_command}     "
+          error_msg += "column must be within #{BitmapEditor::MIN_SUPPORTED_COL} and #{@editor.bitmap.col_size}; "
+          error_msg += "row must be within #{BitmapEditor::MIN_SUPPORTED_ROW} and #{@editor.bitmap.row_size}\n"
+          expect { @editor.process_point_command(col, row, color) }.to output(error_msg).to_stdout
         end
       end
     end
-    
+    context 'when inputs are valid' do
+      [[1, 1, 'A'], [8, 8, 'B'], [2, 4, 'C'], [7, 3, 'D']].each do |col, row, color|
+        it 'sets the point to the given color' do
+          @editor.process_point_command(col, row, color)
+          expect( @editor.get_pixel_color(col, row)).to eq(color) 
+        end
+      end
+    end
+  end
+
+  describe '#process_vertical_line_command' do
+    context 'when image not yet created' do
+      it 'says "there is no image"' do
+        @editor = BitmapEditor.new
+        expect {@editor.process_vertical_line_command(1, 1, 2, 'A') }.to output("there is no image\n").to_stdout
+      end
+    end
+
+    before(:each) do
+      @editor = BitmapEditor.new
+      @editor.process_create_command(8,8)
+    end
+    context 'when inputs are out of bounds' do
+      invalid_cols = [[0, 1, 2, 'A'], [9, 1, 2, 'A'], [-1, 1, 2, 'A']]
+      invalid_rows = [[1, 0, 1, 'A'], [1, 1, 9, 'A'], [1, 0, 9, 'A'], [1, -1, 3, 'A'], [1, 2, -1, 'A']]
+      invalid_both = [[0, 0, 1, 'A'],[9, 9, 1, 'A']]
+      invalid_args = invalid_cols + invalid_rows + invalid_both
+      invalid_args.each do |col, row1, row2, color|
+        it 'says "command failed"' do
+          error_msg = "command failed: #{@editor.previous_command}     "
+          error_msg += "column must be within #{BitmapEditor::MIN_SUPPORTED_COL} and #{@editor.bitmap.col_size}; "
+          error_msg += "row must be within #{BitmapEditor::MIN_SUPPORTED_ROW} and #{@editor.bitmap.row_size}\n"
+          expect {@editor.process_vertical_line_command(col,row1,row2, color) }.to output(error_msg).to_stdout
+        end
+      end
+    end
     context "when inputs are valid" do
       it 'set color correctly with input 1,1,5,A' do
-        @editor.process_vertical_line_command(1, 1, 5,'A')
-        
-        set_correctly =   @editor.image[0][0] == 'A'
-        set_correctly &&= @editor.image[1][0] == 'A'
-        set_correctly &&= @editor.image[2][0] == 'A'
-        set_correctly &&= @editor.image[3][0] == 'A'
-        set_correctly &&= @editor.image[4][0] == 'A'
-        
+        @editor.process_vertical_line_command(1, 1, 5, 'A')
+        set_correctly =   @editor.get_pixel_color(1, 1) == 'A'
+        set_correctly &&= @editor.get_pixel_color(1, 2) == 'A'
+        set_correctly &&= @editor.get_pixel_color(1, 3) == 'A'
+        set_correctly &&= @editor.get_pixel_color(1, 4) == 'A'
+        set_correctly &&= @editor.get_pixel_color(1, 5) == 'A'
         expect(set_correctly).to be true
       end
       it 'set color correctly with input 8,8,6,B' do
-        @editor.process_vertical_line_command(8,8,6,'B')
-
-        set_correctly =   @editor.image[7][7] == 'B'
-        set_correctly &&= @editor.image[6][7] == 'B'
-        set_correctly &&= @editor.image[5][7] == 'B'
-        
+        @editor.process_vertical_line_command(8, 8, 6, 'B')
+        set_correctly =   @editor.get_pixel_color(8, 8) == 'B'
+        set_correctly &&= @editor.get_pixel_color(8, 7) == 'B'
+        set_correctly &&= @editor.get_pixel_color(8, 6) == 'B'
         expect(set_correctly).to be true
       end
       it 'set color correctly with input 3,3,3,C' do
-        @editor.process_vertical_line_command(3,3,3,'C')
-        expect(@editor.image[2][2]).to eq('C')
+        @editor.process_vertical_line_command(3, 3, 3, 'C')
+        expect(@editor.get_pixel_color(3, 3)).to eq('C')
       end
       it 'set color correctly with input 5,7,7,D' do
-        @editor.process_vertical_line_command(5,7,7,'D')
-        expect(@editor.image[6][4]).to eq('D')
+        @editor.process_vertical_line_command(5, 7, 7, 'D')
+        expect(@editor.get_pixel_color(5, 7)).to eq('D')
       end
-      
     end
   end
-  
+
   describe '#process_horizontal_line_command' do
-    context "when image not yet created" do
+    context 'when image not yet created' do
       it 'says "there is no image"' do
         @editor = BitmapEditor.new
-        expect {@editor.process_horizontal_line_command(1,2,1,"O") }.to output("there is no image\n").to_stdout
+        expect {@editor.process_horizontal_line_command(1, 2, 1, 'A') }.to output("there is no image\n").to_stdout
       end
     end
-    
+
     before(:each) do
       @editor = BitmapEditor.new
       @editor.process_create_command(8,8)
     end
-    
-    context "when column inputs are out of bounds" do
-      [[0,1,1,'A'],[1,9,1,'A'],[0,9,1,'A'],[-1,4,2,'A'],[3,-1,2,'A']].each do |col_start, col_end, row, color|
+    context 'when inputs are out of bounds' do
+      invalid_cols = [[0, 1, 1, 'A'], [1, 9, 1, 'A'], [0, 9, 1, 'A'], [-1, 4, 2, 'A'], [3, -1, 2, 'A']]
+      invalid_rows = [[1, 2, 0, 'A'], [1, 2, 9, 'A'], [1, 2, -1, 'A']]
+      invalid_both = [[0, 1, 0, 'A'], [9, 1, 9, 'A']]
+      invalid_args = invalid_cols + invalid_rows + invalid_both
+      invalid_args.each do |col1, col2, row, color|
         it 'says "command failed"' do
-          err_msg = "command failed: H #{col_start} #{col_end} #{row} #{color}     (X out of bounds; must be between 1 and #{@editor.current_max_col})\n"
-          expect {@editor.process_horizontal_line_command(col_start,col_end,row, color) }.to output(err_msg).to_stdout
+          error_msg = "command failed: #{@editor.previous_command}     "
+          error_msg += "column must be within #{BitmapEditor::MIN_SUPPORTED_COL} and #{@editor.bitmap.col_size}; "
+          error_msg += "row must be within #{BitmapEditor::MIN_SUPPORTED_ROW} and #{@editor.bitmap.row_size}\n"
+          expect {@editor.process_horizontal_line_command(col1, col2, row, color) }.to output(error_msg).to_stdout
         end
       end
     end
-    
-    context "when row input is out of bounds" do
-      it 'says "command fail"' do
-        expect {@editor.process_horizontal_line_command(1,2,0,"A") }.to output("command failed: H 1 2 0 A     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
-        expect {@editor.process_horizontal_line_command(1,2,9,"O") }.to output("command failed: H 1 2 9 O     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
-        expect {@editor.process_horizontal_line_command(1,2,-1,"O") }.to output("command failed: H 1 2 -1 O     (Y out of bounds; must be between 1 and #{@editor.current_max_row})\n").to_stdout
-      end
-    end
-    
     context "when inputs are valid" do
       it 'set color correctly with input 1,5,1,A' do
-        @editor.process_horizontal_line_command(1,5,1,'A')
-        
-        set_correctly =   @editor.image[0][4] == 'A'
-        set_correctly &&= @editor.image[0][3] == 'A'
-        set_correctly &&= @editor.image[0][2] == 'A'
-        set_correctly &&= @editor.image[0][1] == 'A'
-        set_correctly &&= @editor.image[0][0] == 'A'
-        
+        @editor.process_horizontal_line_command(1, 5, 1, 'A')
+        set_correctly =   @editor.get_pixel_color(5, 1) == 'A'
+        set_correctly &&= @editor.get_pixel_color(4, 1) == 'A'
+        set_correctly &&= @editor.get_pixel_color(3, 1) == 'A'
+        set_correctly &&= @editor.get_pixel_color(2, 1) == 'A'
+        set_correctly &&= @editor.get_pixel_color(1, 1) == 'A'
         expect(set_correctly).to be true
       end
       it 'set color correctly with input 8,6,8,B' do
-        @editor.process_horizontal_line_command(8,6,8,'B')
-        
-        set_correctly =   @editor.image[7][5] == 'B'
-        set_correctly &&= @editor.image[7][6] == 'B'
-        set_correctly &&= @editor.image[7][7] == 'B'
-        
+        @editor.process_horizontal_line_command(8, 6, 8, 'B')
+        set_correctly =   @editor.get_pixel_color(6, 8) == 'B'
+        set_correctly &&= @editor.get_pixel_color(7, 8) == 'B'
+        set_correctly &&= @editor.get_pixel_color(8, 8) == 'B'
         expect(set_correctly).to be true
       end
       it 'set color correctly with input 3,3,3,C' do
-        @editor.process_horizontal_line_command(3,3,3,'C')
-        expect(@editor.image[2][2]).to eq('C')
+        @editor.process_horizontal_line_command(3, 3, 3, 'C')
+        expect(@editor.get_pixel_color(3, 3)).to eq('C')
       end
       it 'set color correctly with input 5,7,7,D' do
-        @editor.process_horizontal_line_command(5,5,7,'D')
-        expect(@editor.image[6][4]).to eq('D')
+        @editor.process_horizontal_line_command(5, 5, 7, 'D')
+        expect(@editor.get_pixel_color(5, 7)).to eq('D')
       end
     end
   end
-  
-  
+
   describe '#process_clear_command' do
     context "when image not yet created" do
       it 'says "there is no image"' do
@@ -301,24 +262,19 @@ RSpec.describe 'BitmapEditor' do
         expect { editor.process_clear_command() }.to output("there is no image\n").to_stdout
       end
     end
-    
     context "when there is a image" do
       it 'sets the entire image to the color white (O)' do
         editor = BitmapEditor.new
         editor.process_create_command(8,8)
-        expect(Helper.all_white_pixel?(editor.image)).to be true
-        
+        expect(Helper.all_white_pixel?(editor.bitmap.to_a)).to be true
         editor.process_point_command(5,5,'A')
-        expect(Helper.all_white_pixel?(editor.image)).to be false
-        
+        expect(Helper.all_white_pixel?(editor.bitmap.to_a)).to be false
         editor.process_clear_command()
-        expect(Helper.all_white_pixel?(editor.image)).to be true
-        
+        expect(Helper.all_white_pixel?(editor.bitmap.to_a)).to be true
       end
     end
   end
-  
-  
+
   describe '#process_show_command' do
     context "when image not yet created" do
       it 'says "there is no image"' do
@@ -326,7 +282,6 @@ RSpec.describe 'BitmapEditor' do
         expect { editor.process_show_command() }.to output("there is no image\n").to_stdout
       end
     end
-    
     context "when there is a image" do
       it 'outputs the image' do
         editor = BitmapEditor.new
@@ -334,28 +289,23 @@ RSpec.describe 'BitmapEditor' do
         editor.process_point_command(1,3,'A')
         editor.process_vertical_line_command(2,3,6,'W')
         editor.process_horizontal_line_command(3,5,2,'Z')
-        
         expected_img_output =  "OOOOO\n"
         expected_img_output += "OOZZZ\n"
         expected_img_output += "AWOOO\n"
         expected_img_output += "OWOOO\n"
         expected_img_output += "OWOOO\n"
         expected_img_output += "OWOOO\n"
-        
         expect { editor.process_show_command() }.to output(expected_img_output).to_stdout
-        
-        
       end
     end
   end
-  
+
   describe '#run' do
-    
     before(:each) { @editor = BitmapEditor.new}
     root = File.dirname(__dir__)
     examples_path = "#{root}/examples"
     output_path = "#{root}/examples_output"
-    
+
     context 'given input file does not exist' do
       it 'says "please provide correct file"' do
         expect{ @editor.run("#{examples_path}/abcdefg.txt")}.to output("please provide correct file\n").to_stdout
@@ -409,7 +359,90 @@ RSpec.describe 'BitmapEditor' do
         expect{ @editor.run("#{examples_path}/invalid_commands_interweaving_valid_commands.txt")}.to output(expected_output).to_stdout
       end
     end
+  end
+
+  describe '#set_pixel_color' do
+    it 'says "there is no image" when a bitmap has not been created yet' do
+      editor = BitmapEditor.new
+      expect { editor.set_pixel_color(1, 1, 1, 1, 'A') }.to output("there is no image\n").to_stdout
+    end
+    
+    before(:each) do
+      @editor = BitmapEditor.new
+      @editor.process_create_command(5, 5)
+    end
+    context 'when inputs are out of bounds' do
+      invalid_cols = [[0, 1, 1, 1, 'A'], [0, 0, 1, 1, 'A'], [6, 1, 1, 1, 'A']]
+      invalid_rows = [[1, 1, 0, 1, 'A'], [1, 1, 1, 0, 'A'], [1, 1, 6, 1, 'A']]
+      invalid_both = [[0, 0, 0, 0, 'A'], [6, 6, 6, 6, 'A'], [0, 1, 0, 1, 'A'], [1, 0, 1, 0, 'A']]
+      invalid_args = invalid_cols + invalid_rows + invalid_both
+      invalid_args.each do |c1, c2, r1, r2, color|
+        it 'prints error message' do
+          error_msg = "command failed: #{@previous_command}     "
+          error_msg += "column must be within #{BitmapEditor::MIN_SUPPORTED_COL} and #{@editor.bitmap.col_size}; "
+          error_msg += "row must be within #{BitmapEditor::MIN_SUPPORTED_ROW} and #{@editor.bitmap.row_size}\n"
+          expect { @editor.set_pixel_color(c1, c2, r1, r2, color) }.to output(error_msg).to_stdout
+        end
+      end
+    end
+    context 'when inputs are valid' do
+      it '(single point) set color correctly with input, 1, 1, 1, 1, A' do
+        @editor.set_pixel_color(1, 1, 1, 1, 'A')
+        expect(@editor.get_pixel_color(1, 1)).to eq('A')
+      end
+      it '(vertical line) set color correctly with input 1, 1, 5, 3, B' do
+        @editor.set_pixel_color(1, 1, 5, 3, 'B')
+        set_correctly =   @editor.get_pixel_color(1, 5) == 'B'
+        set_correctly &&= @editor.get_pixel_color(1, 4) == 'B'
+        set_correctly &&= @editor.get_pixel_color(1, 3) == 'B'
+        expect(set_correctly).to be true
+      end
+      it '(horizontal line) set color correctly with input 2, 4, 2, 2, Y' do
+        @editor.set_pixel_color(2, 4, 2, 2, 'Y')
+        set_correctly =   @editor.get_pixel_color(2, 2) == 'Y'
+        set_correctly &&= @editor.get_pixel_color(3, 2) == 'Y'
+        set_correctly &&= @editor.get_pixel_color(4, 2) == 'Y'
+        expect(set_correctly).to be true
+      end
+      it '(area) set color correctly with input 1, 2, 2, 3, Z' do
+        @editor.set_pixel_color(1, 2, 2, 3, 'Z')
+        set_correctly =   @editor.get_pixel_color(1, 2) == 'Z'
+        set_correctly &&= @editor.get_pixel_color(1, 3) == 'Z'
+        set_correctly &&= @editor.get_pixel_color(2, 2) == 'Z'
+        set_correctly &&= @editor.get_pixel_color(2, 3) == 'Z'
+        expect(set_correctly).to be true
+      end
+    end
     
   end
-  
+
+  describe '#get_pixel_color' do
+    it 'returns correct color' do
+      editor = BitmapEditor.new
+      editor.process_create_command(5, 5)
+      editor.process_point_command(1, 1, 'A')
+      expect(editor.get_pixel_color(1, 1)).to eq('A')
+      expect(editor.get_pixel_color(1, 2)).to eq('O')
+    end
+  end
+
+  describe '#valid_size?' do
+    before(:each) {@editor = BitmapEditor.new }
+    context 'when given size is valid' do
+      valid_sizes = [[1, 1], [250, 250], [1, 250], [250, 1]]
+      valid_sizes.each do |col, row|
+        it 'returns true' do
+          expect(@editor.valid_size?(col, row)).to be true
+        end
+      end
+    end
+    context 'when given size is invalid' do
+      valid_sizes = [[0, 0], [251, 251], [1, 251], [251, 1]]
+      valid_sizes.each do |col, row|
+        it 'returns true' do
+          expect(@editor.valid_size?(col, row)).to be false
+        end
+      end
+    end
+  end
 end

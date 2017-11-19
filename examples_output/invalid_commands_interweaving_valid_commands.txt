@@ -1,17 +1,17 @@
 unrecognised command :( : A 1 1
-create image failed: I 0 1     (inputs out of bound; column size must be between 1 and 250, row size must be between 1 and 250)
+command failed: I 0 1     column size must be within 1 and 250, row size must be within 1 and 250
 wrong number of arguments: C 5
-command failed: L 0 1 A     (input out of bound; X must be between 1 and 8, Y must be between 1 and 8)
-command failed: V 0 1 1 B     (X out of bounds; must be between 1 and 8)
+command failed: L 0 1 A     column must be within 1 and 8; row must be within 1 and 8
+command failed: V 0 1 1 B     column must be within 1 and 8; row must be within 1 and 8
 wrong number of arguments: H 1 1 1
-create image failed: I 1 251     (inputs out of bound; column size must be between 1 and 250, row size must be between 1 and 250)
+command failed: I 1 251     column size must be within 1 and 250, row size must be within 1 and 250
 unrecognised command :( : B 2 2 X
-command failed: L 1 251 A     (input out of bound; X must be between 1 and 8, Y must be between 1 and 8)
+command failed: L 1 251 A     column must be within 1 and 8; row must be within 1 and 8
 wrong number of arguments: V 1 1 1
-command failed: H 0 1 1 C     (X out of bounds; must be between 1 and 8)
+command failed: H 0 1 1 C     column must be within 1 and 8; row must be within 1 and 8
 wrong number of arguments: S 1
 wrong type of arguments: I 1 a
-command failed: V 0 1 1 B     (X out of bounds; must be between 1 and 8)
+command failed: V 0 1 1 B     column must be within 1 and 8; row must be within 1 and 8
 unrecognised command :( : D 10 2 5 Y
 wrong type of arguments: I a b
 wrong type of arguments: L 8 8 8
@@ -24,10 +24,10 @@ COOOOOOD
 OOOOOOOO
 EOBBBBOE
 unrecognised command :( : E 6 3 8 Z
-command failed: V 1 9 1 B     (Y out of bounds; must be between 1 and 8)
+command failed: V 1 9 1 B     column must be within 1 and 8; row must be within 1 and 8
 unrecognised command :( : F
 wrong number of arguments: I 8 8 8
-command failed: H 1 2 9 C     (Y out of bounds; must be between 1 and 8)
+command failed: H 1 2 9 C     column must be within 1 and 8; row must be within 1 and 8
 unrecognised command :( : CA
 wrong type of arguments: L 1 1 ABC
 wrong type of arguments: V B B B B

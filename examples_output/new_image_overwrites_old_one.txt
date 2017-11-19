@@ -13,7 +13,7 @@ COOFFOOD
 COOOOOOD
 OOOOOOOO
 EOBBBBOE
-command failed: H 9 9 9 C     (Y out of bounds; must be between 1 and 8)
+command failed: H 9 9 9 C     column must be within 1 and 8; row must be within 1 and 8
 OOOOO
 OOZZZ
 AWOOO
