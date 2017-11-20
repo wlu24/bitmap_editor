@@ -64,7 +64,7 @@ class BitmapEditor
     end
   end
 
-  ############# command processing #############
+  ############# command processing, interaction with Bitmap #############
 
   def process_create_command(col_size, row_size)
     if valid_size?(col_size, row_size)
@@ -78,11 +78,8 @@ class BitmapEditor
   end
 
   def process_clear_command
-    if @bitmap.nil?
-      puts 'there is no image'
-    else
-      set_pixel_color(1, @bitmap.col_size, 1, @bitmap.row_size, 'O')
-    end
+    return puts 'there is no image' if @bitmap.nil?
+    set_pixel_color(1, @bitmap.col_size, 1, @bitmap.row_size, 'O')
   end
 
   def process_point_command(col, row, color)
@@ -98,27 +95,20 @@ class BitmapEditor
   end
 
   def process_show_command
-    if @bitmap.nil?
-      puts 'there is no image'
-    else
-      @bitmap.to_a.each { |row| puts row.join('') }
-    end
+    return puts 'there is no image' if @bitmap.nil?
+    @bitmap.to_a.each { |row| puts row.join('') }
   end
 
-  ########## interaction with Bitmap ##########
-
   def set_pixel_color(col1, col2, row1, row2, color)
-    if @bitmap.nil?
-      puts 'there is no image'
-    else
-      begin
-        @bitmap.set_pixel_color(col1 - 1, col2 - 1, row1 - 1, row2 - 1, color)
-      rescue ArgumentError
-        error_msg = "command failed: #{@previous_command}     "
-        error_msg += "column must be within #{MIN_SUPPORTED_COL} and #{@bitmap.col_size}; "
-        error_msg += "row must be within #{MIN_SUPPORTED_ROW} and #{@bitmap.row_size}"
-        puts error_msg
-      end
+    return puts 'there is no image' if @bitmap.nil?
+
+    begin
+      @bitmap.set_pixel_color(col1 - 1, col2 - 1, row1 - 1, row2 - 1, color)
+    rescue ArgumentError
+      error_msg = "command failed: #{@previous_command}     "
+      error_msg += "column must be within #{MIN_SUPPORTED_COL} and #{@bitmap.col_size}; "
+      error_msg += "row must be within #{MIN_SUPPORTED_ROW} and #{@bitmap.row_size}"
+      puts error_msg
     end
   end
 
