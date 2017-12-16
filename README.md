@@ -1,9 +1,9 @@
-#Bitmap Editor
+# Bitmap Editor
 A Ruby 2.3 program that simulates a basic interactive bitmap editor. 
 Bitmaps are represented as an M x N matrix of pixels with each element representing a colour.
 
 
-#Program input
+# Program input
 The input consists of a file containing a sequence of commands, where a command is represented by 
 a single capital letter at the beginning of the line. Parameters of the command are separated by 
 white spaces and they follow the command character.
@@ -15,7 +15,7 @@ between 1 and 250. Bitmaps starts at coordinates 1,1. Colours are specified by c
 
 
 
-#Commands
+# Commands
 There are 6 supported commands:
 
 
@@ -29,11 +29,11 @@ There are 6 supported commands:
 
 
 
-#Example
+# Example
 To run the application you must supply a command file like so bin/bitmap_editor examples/show.txt
 
 
-###Input File:
+### Input File:
 
 
 I 5 6
@@ -51,7 +51,7 @@ H 3 5 2 Z
 S
 
 
-###Expected Output:
+### Expected Output:
 
 
 OOOOO
